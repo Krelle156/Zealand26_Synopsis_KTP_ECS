@@ -9,10 +9,6 @@ public partial class GetPlayerInputSystem : SystemBase
 {
     private MyUnityActions _inputs;
 
-    private OmniDirectionalMovement _omniDirectionalMovement = new OmniDirectionalMovement
-    {
-        Value = new Vector2(0, 0)
-    };
     private ThrustIntentComponent _thrustComponent = new ThrustIntentComponent
     {
         Thrust = 0,
@@ -49,7 +45,6 @@ public partial class GetPlayerInputSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        _omniDirectionalMovement.Value = _inputs.PlayerShip.OmniDirectionalThrust.ReadValue<Vector2>();
 
         _thrustComponent.Thrust = _inputs.PlayerShip.MainThrust.ReadValue<float>();
         _thrustComponent.ThrustLateral = _inputs.PlayerShip.LateralThrust.ReadValue<float>();
@@ -57,6 +52,5 @@ public partial class GetPlayerInputSystem : SystemBase
 
         SystemAPI.SetSingleton(_thrustComponent);
         SystemAPI.SetSingleton(_rotationComponent);
-        SystemAPI.SetSingleton(_omniDirectionalMovement);
     }
 }
