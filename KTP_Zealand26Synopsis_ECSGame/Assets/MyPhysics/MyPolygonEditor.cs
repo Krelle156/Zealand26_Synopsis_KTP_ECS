@@ -16,8 +16,14 @@ public class MyPolygonEditor : Editor
         MyPolygonColliderAuthoring polygonCollider = target as MyPolygonColliderAuthoring;
 
 
-        if(polygonCollider == null || polygonCollider.points == null || polygonCollider.points.Length < 3)
-            return;
+        if(polygonCollider.points == null || polygonCollider.points.Length < 3)
+        {
+            polygonCollider.points = new float2[3];
+            polygonCollider.points[0] = new float2(0, 0.5f);
+            polygonCollider.points[1] = new float2(-0.5f, -0.5f);
+            polygonCollider.points[2] = new float2(0.5f, -0.5f);
+        }
+
         Vector2 offSet = polygonCollider.transform.position;
 
         Handles.color = Color.red;

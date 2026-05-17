@@ -35,11 +35,6 @@ public class CollisionTestBaker : Baker<CollisionTestAuthoring>
                     Rotation = 0
                 });
         }
-        AddComponent(entity,
-            new MyCircleColliderComponent()
-            {
-                Radius = 1
-            });
 
 
     }
