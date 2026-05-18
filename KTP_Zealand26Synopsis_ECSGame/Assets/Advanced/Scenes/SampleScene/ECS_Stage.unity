@@ -383,12 +383,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MyPolygonColliderAuthoring
   points:
-  - x: 0
-    y: 0.5
-  - x: -0.5
-    y: -0.5
-  - x: 0.5
-    y: -0.5
+  - x: -2.6328115
+    y: -1.6040732
+  - x: 2.7305274
+    y: -1.5915397
+  - x: 0.018402576
+    y: 2.7024083
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
