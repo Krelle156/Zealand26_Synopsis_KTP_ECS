@@ -33,7 +33,6 @@ namespace MyMath
                 return new float2(min, max);
         }
 
-
         public static float VectorLength(float2 a)
         {
             return math.sqrt(a.x * a.x + a.y * a.y);

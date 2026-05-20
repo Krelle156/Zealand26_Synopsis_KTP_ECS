@@ -16,3 +16,4 @@ public struct MyVelocityComponent : IComponentData
 {
     public double2 Value;
 }
+

@@ -347,7 +347,7 @@ Transform:
   m_GameObject: {fileID: 105195676}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.09, y: -0.14, z: 0}
+  m_LocalPosition: {x: -4.995, y: -0.131, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -383,12 +383,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MyPolygonColliderAuthoring
   points:
-  - x: -2.6328115
-    y: -1.6040732
-  - x: 2.7305274
-    y: -1.5915397
-  - x: 0.018402576
-    y: 2.7024083
+  - x: -1.8490229
+    y: -0.47959125
+  - x: 1.866476
+    y: -0.48149818
+  - x: 0.74852467
+    y: 0.003231302
+  - x: 1.1622653
+    y: 0.020470515
+  - x: 0.66427946
+    y: 0.32540554
+  - x: -0.66508675
+    y: 0.29629737
+  - x: -1.1305442
+    y: 0.011850908
+  - x: -0.8202381
+    y: -0.022627458
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
