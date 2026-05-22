@@ -21,13 +21,6 @@ partial class OOPBridgeSystem : SystemBase
     protected override void OnUpdate()
     {
         float deltaTime = SystemAPI.Time.DeltaTime;
-        MSSSystemData systemData = SystemAPI.GetSingleton<MSSSystemData>();
-        if (systemData.squareCount >= systemData.nextMileStone)
-        {
-            Debug.Log($"Spawned {systemData.squareCount} squares!");
-            systemData.nextMileStone += systemData.reportInterval;
-            SystemAPI.SetSingleton(systemData);
-        }
         OOPRandom random = SystemAPI.GetComponent<OOPRandom>(SystemHandle);
         if(SystemAPI.GetSingleton<OOPRandom>().coolDown > 0)
         {

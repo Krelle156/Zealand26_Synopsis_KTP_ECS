@@ -14,9 +14,13 @@ public struct MSSSystemData : IComponentData
 
 public partial struct MoveSquareSpawnerSystem : ISystem
 {
+    private Random random;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        random = new Random(213);
+
         state.RequireForUpdate<MoveSquareSpawnerComponent>();
         state.EntityManager.AddComponent<MSSSystemData>(state.SystemHandle);
         SystemAPI.SetComponent(state.SystemHandle, new MSSSystemData
@@ -35,7 +39,6 @@ public partial struct MoveSquareSpawnerSystem : ISystem
     {
         float deltaTime = SystemAPI.Time.DeltaTime;
         double elapsedTime = SystemAPI.Time.ElapsedTime;
-        uint randomSeed = (uint)(elapsedTime / deltaTime) + SystemAPI.GetSingleton<OOPRandom>().offset;
 
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
         foreach(var spawner in SystemAPI.Query<RefRW<MoveSquareSpawnerComponent>>())
@@ -46,8 +49,8 @@ public partial struct MoveSquareSpawnerSystem : ISystem
                 ecb.SetComponent(newEntity, LocalTransform.FromPosition(spawner.ValueRW.spawnPosition));
                 ecb.SetComponent(newEntity, new SimpleMoveComponent
                 {
-                    moveDirection = Random.CreateFromIndex(randomSeed).NextFloat2Direction(),
-                    speed = Random.CreateFromIndex(randomSeed).NextFloat(0f, 10f)
+                    moveDirection = random.NextFloat2Direction(),
+                    speed = random.NextFloat(0f, 10f)
                 });
                 spawner.ValueRW.coolDown = 1f / spawner.ValueRW.spawnRate;
 
