@@ -68,4 +68,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e69877a9406ea04fa6d9a6fddda6135, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  timeBetweenFPSUpdates: 0.1
   uiDocument: {fileID: 4185318514390637595}

@@ -4,14 +4,21 @@ using UnityEngine.UIElements;
 public class SharedUIController : MonoBehaviour
 {
     public static SharedUIController Instance { get; private set; }
+    private float[] fpsBuffer = new float[100];
+    private int fpsBufferIndex = 0;
+    [SerializeField] private float timeBetweenFPSUpdates = 0.1f;
+    private float fpsCoolDown = 0f;
 
     [SerializeField]
     private UIDocument uiDocument;
     private Button OOPSceneBtn, ECSSceneBtn, OOPPhysicsSceneBtn, EcsPhysicsSceneBtn, CustomECSBtn, ExitBtn;
     private Label FPSCounter;
+    private Label Scenario;
 
     public void Awake()
     {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = -1;
         if (Instance == null)
         {
             Instance = this;
@@ -48,11 +55,26 @@ public class SharedUIController : MonoBehaviour
         EcsPhysicsSceneBtn = uiDocument.rootVisualElement.Q<Button>("ECS_Constrained3D_Physics");
         ExitBtn = uiDocument.rootVisualElement.Q<Button>("ExitBtn");
         FPSCounter = uiDocument.rootVisualElement.Q<Label>("FPS_Counter");
+        Scenario = uiDocument.rootVisualElement.Q<Label>("Scenario");
     }
 
     public void Update()
     {
-        FPSCounter.text = $"FPS: {1f / Time.deltaTime:0.0}";
+        fpsBuffer[fpsBufferIndex] = 1f / Time.unscaledDeltaTime;
+        fpsBufferIndex = (fpsBufferIndex + 1) % fpsBuffer.Length;
+
+        fpsCoolDown -= Time.deltaTime;
+        if (fpsCoolDown <= 0f)
+        {
+            fpsCoolDown = timeBetweenFPSUpdates;
+            float averageFPS = 0f;
+            foreach (float fps in fpsBuffer)
+            {
+                averageFPS += fps;
+            }
+            averageFPS /= fpsBuffer.Length;
+            FPSCounter.text = $"FPS: {averageFPS:0.0}";
+        }
     }
 
     //https://docs.unity3d.com/6000.1/Documentation/Manual/execution-order.html
@@ -81,6 +103,7 @@ public class SharedUIController : MonoBehaviour
 
     public void LoadScene(string sceneName)
     {
+        Scenario.text = sceneName;
         UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
     }
 
