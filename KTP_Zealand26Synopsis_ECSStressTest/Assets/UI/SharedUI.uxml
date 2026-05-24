@@ -1,12 +1,15 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:VisualElement style="flex-direction: row;">
+        <ui:VisualElement name="SidebarLeft" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.67); width: 22%;">
+            <ui:Label text="FPS: N/A" name="FPS_Counter" style="color: rgb(27, 255, 27);"/>
+            <ui:Label text="Squares: N/A" name="Square_Counter" style="color: rgb(255, 255, 255);"/>
+        </ui:VisualElement>
         <ui:VisualElement style="flex-grow: 1; width: 80%;">
             <ui:Label text="Scenario: N/A&#10;" name="Scenario" style="-unity-font-style: bold; font-size: 16px; -unity-text-align: upper-center; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px;"/>
-            <ui:Label text="FPS: N/A" name="FPS_Counter" style="width: 100px; position: absolute; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; background-color: rgba(0, 0, 0, 0);"/>
         </ui:VisualElement>
-        <ui:VisualElement style="flex-grow: 1;">
+        <ui:VisualElement name="SidebarRight" style="flex-grow: 1; width: 22%;">
             <ui:Label text="Elements per second" style="-unity-text-align: upper-center;"/>
-            <ui:SliderInt label="" value="42" high-value="100" name="SquaresPerSecondSlider"/>
+            <ui:SliderInt label="" value="500" high-value="1000" name="SquaresPerSecondSlider"/>
             <ui:Label text="N/A" name="SquaresPerSecondFeedback" style="-unity-text-align: upper-center; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; background-color: rgb(120, 120, 120);"/>
             <ui:Button text="ECS moving squares&#10;" name="ECS_MovingSquares"/>
             <ui:Button text="OOP MovingSquares" name="OOP_MovingSquares"/>
@@ -15,7 +18,7 @@
             <ui:Button text="ECS Physics (fake 2D)" name="ECS_Constrained3D_Physics"/>
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement style="flex-grow: 1; flex-direction: column-reverse; align-items: flex-end;">
+    <ui:VisualElement name="LowerSection" style="flex-grow: 1; flex-direction: column-reverse; align-items: flex-end;">
         <ui:Button text="Exit Program&#10;" name="ExitBtn" style="position: absolute; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(87, 96, 101);"/>
     </ui:VisualElement>
 </ui:UXML>

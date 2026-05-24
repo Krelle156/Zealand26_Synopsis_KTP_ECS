@@ -12,7 +12,7 @@ public class PhysicsSquareSpawnerBaker : Baker<PhysicsSquareSpawnerAuthoring>
     public override void Bake(PhysicsSquareSpawnerAuthoring authoring)
     {
         var entity = GetEntity(TransformUsageFlags.None);
-        AddComponent(entity, new SquareSpawner
+        AddComponent(entity, new PhysicsSquareSpawnerComponent
         {
             prefab = GetEntity(authoring.prefab, TransformUsageFlags.None),
             spawnPosition = authoring.transform.position,

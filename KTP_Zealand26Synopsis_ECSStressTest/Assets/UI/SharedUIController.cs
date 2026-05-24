@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Entities;
 using UnityEngine.UIElements;
 
 public class SharedUIController : MonoBehaviour
@@ -13,7 +14,16 @@ public class SharedUIController : MonoBehaviour
     private UIDocument uiDocument;
     private Button OOPSceneBtn, ECSSceneBtn, OOPPhysicsSceneBtn, EcsPhysicsSceneBtn, CustomECSBtn, ExitBtn;
     private Label FPSCounter;
+    private Label SquareCounter;
     private Label Scenario;
+
+    private SliderInt SquaresPerSecondSlider;
+
+    private OOPSquareSpawner spawner;
+    private OOPPhysicsSquareSpawner physicsSpawner;
+    //ECS will be handled by the bridge system.
+
+    public int ReportedNumOfSquares { get; set; } = -1;
 
     public void Awake()
     {
@@ -55,13 +65,18 @@ public class SharedUIController : MonoBehaviour
         EcsPhysicsSceneBtn = uiDocument.rootVisualElement.Q<Button>("ECS_Constrained3D_Physics");
         ExitBtn = uiDocument.rootVisualElement.Q<Button>("ExitBtn");
         FPSCounter = uiDocument.rootVisualElement.Q<Label>("FPS_Counter");
+        SquareCounter = uiDocument.rootVisualElement.Q<Label>("Square_Counter");
         Scenario = uiDocument.rootVisualElement.Q<Label>("Scenario");
+        SquaresPerSecondSlider = uiDocument.rootVisualElement.Q<SliderInt>("SquaresPerSecondSlider");
+
     }
 
     public void Update()
     {
+
         fpsBuffer[fpsBufferIndex] = 1f / Time.unscaledDeltaTime;
         fpsBufferIndex = (fpsBufferIndex + 1) % fpsBuffer.Length;
+
 
         fpsCoolDown -= Time.deltaTime;
         if (fpsCoolDown <= 0f)
@@ -74,6 +89,7 @@ public class SharedUIController : MonoBehaviour
             }
             averageFPS /= fpsBuffer.Length;
             FPSCounter.text = $"FPS: {averageFPS:0.0}";
+            SquareCounter.text = $"Squares: {(ReportedNumOfSquares >= 0 ? ReportedNumOfSquares.ToString() : "N/A")}";
         }
     }
 
@@ -82,12 +98,18 @@ public class SharedUIController : MonoBehaviour
     public void OnEnable()
     {
         if (Instance != this) return;
+
         ExitBtn.clicked += ExitGame;
         OOPSceneBtn.clicked += LoadOOP2DScene;
         ECSSceneBtn.clicked += LoadECS2DScene;
         CustomECSBtn.clicked += LoadECSCustomScene;
         OOPPhysicsSceneBtn.clicked += LoadOOP2DPhysicsScene;
         EcsPhysicsSceneBtn.clicked += LoadECSFake2DPhysicsScene;
+
+        if(SquaresPerSecondSlider != null)
+        {
+            SquaresPerSecondSlider.RegisterValueChangedCallback(ChangeSpawnRates);
+        }
     }
 
     public void OnDisable()
@@ -99,10 +121,16 @@ public class SharedUIController : MonoBehaviour
         CustomECSBtn.clicked -= LoadECSCustomScene;
         OOPPhysicsSceneBtn.clicked -= LoadOOP2DPhysicsScene;
         EcsPhysicsSceneBtn.clicked -= LoadECSFake2DPhysicsScene;
+        if(SquaresPerSecondSlider != null)
+        {
+            SquaresPerSecondSlider.UnregisterValueChangedCallback(ChangeSpawnRates);
+        }
     }
 
     public void LoadScene(string sceneName)
     {
+        ReportedNumOfSquares = -1;
+        ReportedNumOfSquares = 0;
         Scenario.text = sceneName;
         UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
     }
@@ -113,6 +141,12 @@ public class SharedUIController : MonoBehaviour
     private void LoadOOP2DPhysicsScene() => LoadScene("OOP2DPhysicsScene");
     private void LoadECSFake2DPhysicsScene() => LoadScene("ECSFake2DPhysicsScene");
 
+    private void ChangeSpawnRates(ChangeEvent<int> evt)
+    {
+        int newSpawnRate = evt.newValue;
+
+
+    }
     public void ExitGame()
     {
         Application.Quit();

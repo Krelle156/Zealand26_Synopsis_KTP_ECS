@@ -8,4 +8,6 @@ public struct MoveSquareSpawnerComponent : IComponentData
     public float3 spawnPosition;
     public float spawnRate;
     public float coolDown;
+
+    public int numOfSquares;
 }

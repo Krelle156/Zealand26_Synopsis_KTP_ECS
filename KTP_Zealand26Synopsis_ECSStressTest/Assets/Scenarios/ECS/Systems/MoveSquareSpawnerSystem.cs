@@ -5,32 +5,19 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-public struct MSSSystemData : IComponentData
-{
-    public int squareCount;
-    public int reportInterval;
-    public int nextMileStone;
-}
-
 public partial struct MoveSquareSpawnerSystem : ISystem
 {
+    //https://www.youtube.com/watch?v=s-nr9EMmhfo A mildly outdated video. It demonstrates how to use random in ECS. The main difference appears to be that entites and components are not created the same way.
     private Random random;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        random = new Random(213);
+        random = new Random(123);
 
         state.RequireForUpdate<MoveSquareSpawnerComponent>();
-        state.EntityManager.AddComponent<MSSSystemData>(state.SystemHandle);
-        SystemAPI.SetComponent(state.SystemHandle, new MSSSystemData
-        {
-            squareCount = 0,
-            reportInterval = 1000
-        });
 
-        //TODO - https://docs.unity3d.com/Packages/com.unity.entities@1.0/manual/systems-data.html
-        //It says to store these things in a component.
+        //https://docs.unity3d.com/Packages/com.unity.entities@1.0/manual/systems-data.html recommends storing system specifc data in a component. At least if it is to be accessible from elsewhere I think.
 
     }
 
@@ -40,32 +27,41 @@ public partial struct MoveSquareSpawnerSystem : ISystem
         float deltaTime = SystemAPI.Time.DeltaTime;
         double elapsedTime = SystemAPI.Time.ElapsedTime;
 
+        int squareCount = 0;
+
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
         foreach(var spawner in SystemAPI.Query<RefRW<MoveSquareSpawnerComponent>>())
         {
-            if(spawner.ValueRW.coolDown <= 0f)
+            MoveSquareSpawnerComponent spawnerData = spawner.ValueRW;
+            if(spawnerData.coolDown <= 0f)
             {
-                Entity newEntity = ecb.Instantiate(spawner.ValueRW.prefab);
-                ecb.SetComponent(newEntity, LocalTransform.FromPosition(spawner.ValueRW.spawnPosition));
+                Entity newEntity = ecb.Instantiate(spawnerData.prefab);
+                ecb.SetComponent(newEntity, LocalTransform.FromPosition(spawnerData.spawnPosition));
                 ecb.SetComponent(newEntity, new SimpleMoveComponent
                 {
                     moveDirection = random.NextFloat2Direction(),
                     speed = random.NextFloat(0f, 10f)
                 });
-                spawner.ValueRW.coolDown = 1f / spawner.ValueRW.spawnRate;
+                spawnerData.coolDown = 1f / spawnerData.spawnRate;
+                spawnerData.numOfSquares++;
 
 
-                var data = SystemAPI.GetComponent<MSSSystemData>(state.SystemHandle);
-                data.squareCount++;
-
-                SystemAPI.SetComponent(state.SystemHandle, data);
+                spawner.ValueRW = spawnerData;
             }
             else
             {
-                spawner.ValueRW.coolDown -= deltaTime;
+                spawnerData.coolDown -= deltaTime;
+                spawner.ValueRW = spawnerData;
             }
-
+            squareCount += spawnerData.numOfSquares;
         }
+
+        if(SystemAPI.TryGetSingleton<SquareCounterSingletonComponent>(out var counter))
+        {
+            counter.NumOfSquares = squareCount;
+            SystemAPI.SetSingleton(counter);
+        }
+
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
 

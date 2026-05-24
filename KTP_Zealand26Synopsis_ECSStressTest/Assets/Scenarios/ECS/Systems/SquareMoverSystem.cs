@@ -20,5 +20,6 @@ public partial struct SquareMoverSystem : ISystem
             }
             move.ValueRW.speed = speed;
         }
+
     }
 }
