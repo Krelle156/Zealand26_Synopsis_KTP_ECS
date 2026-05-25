@@ -78,9 +78,9 @@ public class SharedUIController : MonoBehaviour
 
 
         SquaresPerSecondSlider = root.Q<SliderInt>("SquaresPerSecondSlider");
+        SquaresPerSecondFeedback = root.Q<Label>("SquaresPerSecondFeedback");
         PopulateReferences();
         SetSpawnRate(SquaresPerSecondSlider.value);
-        SquaresPerSecondFeedback = root.Q<Label>("SquaresPerSecondFeedback");
 
         initialized = true;
     }
