@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Entities;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
@@ -12,12 +12,18 @@ public class SharedUIController : MonoBehaviour
     [SerializeField] private float timeBetweenFPSUpdates = 0.1f;
     private float fpsCoolDown = 0f;
 
+    private float prevFPS = -1f;
+    private float fpsDeltaTotal = 0f;
+    private float seconds = 0;
+
     [SerializeField]
     private UIDocument uiDocument;
     private Button OOPSceneBtn, ECSSceneBtn, OOPPhysicsSceneBtn, EcsPhysicsSceneBtn, CustomECSBtn, ExitBtn;
+    private Label Scenario;
+
     private Label FPSCounter;
     private Label SquareCounter;
-    private Label Scenario;
+    private Label FPSDeltaAvg;
 
     private SliderInt SquaresPerSecondSlider;
     private Label SquaresPerSecondFeedback;
@@ -72,9 +78,12 @@ public class SharedUIController : MonoBehaviour
         OOPPhysicsSceneBtn = root.Q<Button>("OOP_2D_Physics");
         EcsPhysicsSceneBtn = root.Q<Button>("ECS_Constrained3D_Physics");
         ExitBtn = root.Q<Button>("ExitBtn");
+
+        Scenario = root.Q<Label>("Scenario");
+
         FPSCounter = root.Q<Label>("FPS_Counter");
         SquareCounter = root.Q<Label>("Square_Counter");
-        Scenario = root.Q<Label>("Scenario");
+        FPSDeltaAvg = root.Q<Label>("FPS_DeltaAvg");
 
 
         SquaresPerSecondSlider = root.Q<SliderInt>("SquaresPerSecondSlider");
@@ -87,6 +96,13 @@ public class SharedUIController : MonoBehaviour
 
     public void Update()
     {
+        if (prevFPS > 0)
+        {
+            fpsDeltaTotal += (1f / Time.unscaledDeltaTime) - prevFPS;
+            seconds += Time.unscaledDeltaTime;
+            FPSDeltaAvg.text = $"ΔFPS Avg: {(fpsDeltaTotal / seconds):0.00}  seconds:{seconds:0.}";
+        }
+        prevFPS = 1f / Time.unscaledDeltaTime;
 
         fpsBuffer[fpsBufferIndex] = 1f / Time.unscaledDeltaTime;
         fpsBufferIndex = (fpsBufferIndex + 1) % fpsBuffer.Length;
@@ -111,7 +127,6 @@ public class SharedUIController : MonoBehaviour
     //As far as I can tell OnEnable happens before Start.
     public void OnEnable()
     {
-        Debug.Log("Enabling SharedUIController and registering button callbacks.");
         if (Instance != this) return;
 
         ExitBtn.clicked += ExitGame;
@@ -164,6 +179,7 @@ public class SharedUIController : MonoBehaviour
         Scenario.text = sceneTitle;
         PopulateReferences();
         SetSpawnRate(SquaresPerSecondSlider.value);
+        System.GC.Collect(); //Forcing the garbage collector to collect garbage. I hope this will result in more accurate tests.
 
 
     }
@@ -171,7 +187,6 @@ public class SharedUIController : MonoBehaviour
     public void PopulateReferences()
     {
         spawner = FindFirstObjectByType<OOPSquareSpawner>();
-        if (spawner == null) Debug.Log(">:(");
         physicsSpawner = FindFirstObjectByType<OOPPhysicsSquareSpawner>();
         bridge = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<OOPBridgeSystem>();
     }

@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenarios/ECSFake2DPhysicsScene.unity
     guid: 4c05e4f2e8a777a409b36d4f6f36158d
+  - enabled: 1
+    path: Assets/Scenarios/CustomECS.unity
+    guid: 0ab1a28608e29424892436f42d9112d7
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
