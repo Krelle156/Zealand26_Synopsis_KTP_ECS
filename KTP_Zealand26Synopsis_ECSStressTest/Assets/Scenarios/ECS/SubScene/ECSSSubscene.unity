@@ -224,7 +224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MoveSquareSpawnerAuthoring
   prefab: {fileID: 2926040345886346379, guid: e4e9a122afeab044587f2bf2f08e94f7, type: 3}
-  spawnRate: 500
+  spawnRate: 100
 --- !u!1 &1834979491
 GameObject:
   m_ObjectHideFlags: 0

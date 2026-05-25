@@ -3,16 +3,19 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-
+public struct UniversalSpawnRateComponent : IComponentData
+{
+    public float SpawnRate;
+}
 partial class OOPBridgeSystem : SystemBase
 {
-    public static bool worldIsEcs = false;
-
     protected override void OnCreate()
     {
         var query1 = GetEntityQuery(typeof(PhysicsSquareSpawnerComponent));
         var query2 = GetEntityQuery(typeof(MoveSquareSpawnerComponent));
         RequireAnyForUpdate(query1, query2);
+
+        EntityManager.AddComponent<UniversalSpawnRateComponent>(SystemHandle);
     }
 
     protected override void OnUpdate()

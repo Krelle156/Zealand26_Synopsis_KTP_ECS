@@ -25,7 +25,6 @@ public partial struct MoveSquareSpawnerSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         float deltaTime = SystemAPI.Time.DeltaTime;
-        double elapsedTime = SystemAPI.Time.ElapsedTime;
 
         int squareCount = 0;
 
@@ -33,27 +32,12 @@ public partial struct MoveSquareSpawnerSystem : ISystem
         foreach(var spawner in SystemAPI.Query<RefRW<MoveSquareSpawnerComponent>>())
         {
             MoveSquareSpawnerComponent spawnerData = spawner.ValueRW;
-            if(spawnerData.coolDown <= 0f)
-            {
-                Entity newEntity = ecb.Instantiate(spawnerData.prefab);
-                ecb.SetComponent(newEntity, LocalTransform.FromPosition(spawnerData.spawnPosition));
-                ecb.SetComponent(newEntity, new SimpleMoveComponent
-                {
-                    moveDirection = random.NextFloat2Direction(),
-                    speed = random.NextFloat(0f, 10f)
-                });
-                spawnerData.coolDown = 1f / spawnerData.spawnRate;
-                spawnerData.numOfSquares++;
+            spawnerData.coolDown -= deltaTime;
 
+            if (spawnerData.coolDown <= 0f) spawnerData = SpawnSquares(ecb, spawnerData);
 
-                spawner.ValueRW = spawnerData;
-            }
-            else
-            {
-                spawnerData.coolDown -= deltaTime;
-                spawner.ValueRW = spawnerData;
-            }
-            squareCount += spawnerData.numOfSquares;
+            spawner.ValueRW = spawnerData;
+            squareCount += spawnerData.numOfSquaresSpawned;
         }
 
         if(SystemAPI.TryGetSingleton<SquareCounterSingletonComponent>(out var counter))
@@ -65,6 +49,27 @@ public partial struct MoveSquareSpawnerSystem : ISystem
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
 
+    }
+
+    [BurstCompile]
+    private MoveSquareSpawnerComponent SpawnSquares(EntityCommandBuffer ecb, MoveSquareSpawnerComponent spawnerData)
+    {
+        Entity newEntity = ecb.Instantiate(spawnerData.prefab);
+        ecb.SetComponent(newEntity, LocalTransform.FromPosition(spawnerData.spawnPosition));
+        ecb.SetComponent(newEntity, new SimpleMoveComponent
+        {
+            moveDirection = random.NextFloat2Direction(),
+            speed = random.NextFloat(0f, 10f)
+        });
+        spawnerData.coolDown += 1f / spawnerData.spawnRate;
+        spawnerData.numOfSquaresSpawned++;
+
+        if(spawnerData.coolDown <= 0f)
+        {
+            return SpawnSquares(ecb, spawnerData);
+        }
+
+        return spawnerData;
     }
 
 }

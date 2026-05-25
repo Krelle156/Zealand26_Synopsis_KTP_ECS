@@ -17,7 +17,7 @@ public class PhysicsSquareSpawnerBaker : Baker<PhysicsSquareSpawnerAuthoring>
             prefab = GetEntity(authoring.prefab, TransformUsageFlags.None),
             spawnPosition = authoring.transform.position,
             spawnRate = authoring.spawnRate,
-            nextSpawnTime = 0f
+            coolDown = 0f
         });
     }
 }

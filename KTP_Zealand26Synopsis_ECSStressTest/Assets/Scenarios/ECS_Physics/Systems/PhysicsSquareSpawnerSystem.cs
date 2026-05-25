@@ -21,16 +21,12 @@ public partial struct PhysicsSquareSpawnerSystem : ISystem
         EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
         foreach (var spawner in SystemAPI.Query<RefRW<PhysicsSquareSpawnerComponent>>())
         {
-            var spawnerData = spawner.ValueRW;
-            if (currentTime >= spawnerData.nextSpawnTime)
-            {
-                Entity newEntity = ecb.Instantiate(spawnerData.prefab);
-                ecb.SetComponent(newEntity, LocalTransform.FromPosition(spawnerData.spawnPosition));
-                spawnerData.nextSpawnTime = currentTime + 1f / spawnerData.spawnRate;
-                spawnerData.numOfSquaresSpawned++;
-                spawner.ValueRW = spawnerData;
+            PhysicsSquareSpawnerComponent spawnerData = spawner.ValueRW;
+            spawnerData.coolDown -= deltaTime;
 
-            }
+            if (spawnerData.coolDown <= 0f)    spawnerData = SpawnSquares(ecb, spawnerData);
+
+            spawner.ValueRW = spawnerData;
             squareCount += spawnerData.numOfSquaresSpawned;
         }
 
@@ -43,5 +39,21 @@ public partial struct PhysicsSquareSpawnerSystem : ISystem
 
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
+    }
+
+    [BurstCompile]
+    private PhysicsSquareSpawnerComponent SpawnSquares(EntityCommandBuffer ecb, PhysicsSquareSpawnerComponent spawnerData)
+    {
+        Entity newEntity = ecb.Instantiate(spawnerData.prefab);
+        ecb.SetComponent(newEntity, LocalTransform.FromPosition(spawnerData.spawnPosition));
+        spawnerData.coolDown += 1f / spawnerData.spawnRate;
+        spawnerData.numOfSquaresSpawned++;
+
+        if (spawnerData.coolDown <= 0f)
+        {
+            return SpawnSquares(ecb, spawnerData);
+        }
+
+        return spawnerData;
     }
 }

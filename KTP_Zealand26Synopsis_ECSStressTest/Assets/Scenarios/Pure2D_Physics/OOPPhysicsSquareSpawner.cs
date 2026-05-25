@@ -1,5 +1,6 @@
-using UnityEngine;
 using Unity.Entities;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public class OOPPhysicsSquareSpawner : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class OOPPhysicsSquareSpawner : MonoBehaviour
 
     public Rigidbody2D squarePrefab;
     public float spawnRate = 1f;
-    private float nextSpawnTime;
+    private float cooldown;
 
     public void Awake()
     {
@@ -16,16 +17,26 @@ public class OOPPhysicsSquareSpawner : MonoBehaviour
 
     void Update()
     {
-        if (Time.time >= nextSpawnTime)
+        cooldown -= Time.deltaTime;
+        if (cooldown <= 0)
         {
-            Instantiate(squarePrefab, transform.position, Quaternion.identity);
-            nextSpawnTime = Time.time + 1f / spawnRate;
+            SpawnSquare();
             SharedUIController instance = SharedUIController.Instance;
-            ReportedNumOfSquares++;
             if (instance != null)
             {
                 instance.ReportedNumOfSquares = ReportedNumOfSquares;
             }
+        }
+    }
+
+    private void SpawnSquare()
+    {
+        Rigidbody2D newSquare = Instantiate(squarePrefab, transform.position, Quaternion.identity);
+        ReportedNumOfSquares++;
+        cooldown += 1f / spawnRate;
+        if (cooldown <= 0f)
+        {
+            SpawnSquare();
         }
     }
 }

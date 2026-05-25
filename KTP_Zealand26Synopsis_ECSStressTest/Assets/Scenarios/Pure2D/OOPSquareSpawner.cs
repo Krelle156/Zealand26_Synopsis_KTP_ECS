@@ -13,35 +13,30 @@ public class OOPSquareSpawner : MonoBehaviour
         ReportedNumOfSquares = 0;
     }
 
-    // Update is called once per frame
     void Update()
     {
+        cooldown -= Time.deltaTime;
         if (cooldown <= 0f)
         {
-            SpawnSquares(cooldown);
+            SpawnSquare();
             SharedUIController instance = SharedUIController.Instance;
             if (instance != null)
             {
                 instance.ReportedNumOfSquares = ReportedNumOfSquares;
             }
         }
-        else
-        {
-            cooldown -= Time.deltaTime;
-        }
     }
 
-    private void SpawnSquares(float coolDownState)
+    private void SpawnSquare()
     {
         SelfMovingSquare newSquare = Instantiate(squarePrefab, transform.position, Quaternion.identity);
         newSquare.direction = Random.insideUnitCircle.normalized;
         newSquare.speed = Random.Range(0f, 10f);
         ReportedNumOfSquares++;
-        coolDownState += 1/spawnRate;
-        if(coolDownState < 0f)
+        cooldown += 1f/spawnRate;
+        if(cooldown <= 0f)
         {
-            Debug.Log("Recursively doing thing");
-            SpawnSquares(coolDownState);
+            SpawnSquare();
         }
     }
 }

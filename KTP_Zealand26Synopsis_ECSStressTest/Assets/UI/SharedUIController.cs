@@ -40,11 +40,6 @@ public class SharedUIController : MonoBehaviour
             return;
         }
 
-        for(int test = 0; test < 10_000_000; test++)
-        {
-            // Just to make sure the loading screen is visible for a while
-        }
-
         if (uiDocument == null)
         {
             if (TryGetComponent(out UIDocument doc))
