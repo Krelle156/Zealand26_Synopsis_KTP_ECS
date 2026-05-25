@@ -142,11 +142,9 @@ public class SharedUIController : MonoBehaviour
         }
     }
 
-    public void LoadScene(string sceneName)
+    public void LoadScene(string sceneName, string sceneTitle)
     {
-        ReportedNumOfSquares = 0;
-        if(sceneName == "CleanScene") ReportedNumOfSquares = -1;
-        StartCoroutine(LoadSceneAsync(sceneName));
+        StartCoroutine(LoadSceneAsync(sceneName, sceneTitle));
     }
 
     //https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.LoadSceneAsync.html
@@ -154,14 +152,16 @@ public class SharedUIController : MonoBehaviour
     //I try to document it here and there in the code, because these are not directly relevant for the assignment, but still indicative of what I have done.
     //There are however many cases where I have forgotten or otherwise not done so.
     //Anyways, it is needed only to really ensure that there are handles for the spawners so I can use the slider to set their rates and so I can set the spawn rate "text".
-    public IEnumerator LoadSceneAsync(string sceneName)
+    public IEnumerator LoadSceneAsync(string sceneName, string sceneTitle)
     {
+        ReportedNumOfSquares = 0;
+        if (sceneName == "CleanScene") ReportedNumOfSquares = -1;
         AsyncOperation loadingNextScene = SceneManager.LoadSceneAsync(sceneName);
         while (!loadingNextScene.isDone)
         {
             yield return null;
         }
-        Scenario.text = sceneName;
+        Scenario.text = sceneTitle;
         PopulateReferences();
         SetSpawnRate(SquaresPerSecondSlider.value);
 
@@ -176,12 +176,11 @@ public class SharedUIController : MonoBehaviour
         bridge = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<OOPBridgeSystem>();
     }
 
-    private void LoadOOP2DScene() => LoadScene("OOP2DScene");
-    private void LoadECS2DScene() => LoadScene("ECS2DScene");
-    private void LoadECSCustomScene() => LoadScene("ECS_Custom");
-    private void LoadOOP2DPhysicsScene() => LoadScene("OOP2DPhysicsScene");
-    private void LoadECSFake2DPhysicsScene() => LoadScene("ECSFake2DPhysicsScene");
-
+    private void LoadOOP2DScene() => LoadScene("OOP2DScene", "Spawning traditional game objects");
+    private void LoadECS2DScene() => LoadScene("ECS2DScene", "Spawning ECS game objects");
+    private void LoadECSCustomScene() => LoadScene("CustomECS", "Spawning custom \"ECS\" game objects");
+    private void LoadOOP2DPhysicsScene() => LoadScene("OOP2DPhysicsScene", "Spawning traditional game objects with physics");
+    private void LoadECSFake2DPhysicsScene() => LoadScene("ECSFake2DPhysicsScene", "Spawning ECS game objects with fake physics");
     private void OnSpawnRateSliderChange(ChangeEvent<int> evt)
     {
         int newSpawnRate = evt.newValue;

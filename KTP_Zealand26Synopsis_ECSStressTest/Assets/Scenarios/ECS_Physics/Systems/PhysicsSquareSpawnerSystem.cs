@@ -35,7 +35,7 @@ public partial struct PhysicsSquareSpawnerSystem : ISystem
             }
             spawnerData.coolDown -= deltaTime;
 
-            if (spawnerData.coolDown <= 0f)    spawnerData = SpawnSquares(ecb, spawnerData);
+            if (spawnerData.coolDown <= 0f)    spawnerData = SpawnSquare(ecb, spawnerData);
 
             spawner.ValueRW = spawnerData;
             squareCount += spawnerData.numOfSquaresSpawned;
@@ -53,7 +53,7 @@ public partial struct PhysicsSquareSpawnerSystem : ISystem
     }
 
     [BurstCompile]
-    private PhysicsSquareSpawnerComponent SpawnSquares(EntityCommandBuffer ecb, PhysicsSquareSpawnerComponent spawnerData)
+    private PhysicsSquareSpawnerComponent SpawnSquare(EntityCommandBuffer ecb, PhysicsSquareSpawnerComponent spawnerData)
     {
         Entity newEntity = ecb.Instantiate(spawnerData.prefab);
         ecb.SetComponent(newEntity, LocalTransform.FromPosition(spawnerData.spawnPosition));
@@ -62,7 +62,7 @@ public partial struct PhysicsSquareSpawnerSystem : ISystem
 
         if (spawnerData.coolDown <= 0f)
         {
-            return SpawnSquares(ecb, spawnerData);
+            return SpawnSquare(ecb, spawnerData);
         }
 
         return spawnerData;
