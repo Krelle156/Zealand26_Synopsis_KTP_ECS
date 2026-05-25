@@ -9,8 +9,8 @@
         </ui:VisualElement>
         <ui:VisualElement name="SidebarRight" style="flex-grow: 1; width: 22%;">
             <ui:Label text="Elements per second" style="-unity-text-align: upper-center;"/>
-            <ui:SliderInt label="" value="500" high-value="1000" name="SquaresPerSecondSlider"/>
             <ui:Label text="N/A" name="SquaresPerSecondFeedback" style="-unity-text-align: upper-center; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; background-color: rgb(120, 120, 120);"/>
+            <ui:SliderInt label="" value="100" high-value="300" name="SquaresPerSecondSlider" low-value="1"/>
             <ui:Button text="ECS moving squares&#10;" name="ECS_MovingSquares"/>
             <ui:Button text="OOP MovingSquares" name="OOP_MovingSquares"/>
             <ui:Button text="Custom ECS" name="ECS_Custom"/>

@@ -27,11 +27,21 @@ public partial struct MoveSquareSpawnerSystem : ISystem
         float deltaTime = SystemAPI.Time.DeltaTime;
 
         int squareCount = 0;
+        float spawnRateOverride = -1f;
+
+        if (SystemAPI.TryGetSingleton<UniversalSpawnRateComponent>(out var spawnRate))
+        {
+            spawnRateOverride = spawnRate.SpawnRate;
+        }
 
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
         foreach(var spawner in SystemAPI.Query<RefRW<MoveSquareSpawnerComponent>>())
         {
             MoveSquareSpawnerComponent spawnerData = spawner.ValueRW;
+            if(spawnRateOverride > 0f)
+            {
+                spawnerData.spawnRate = spawnRateOverride;
+            }
             spawnerData.coolDown -= deltaTime;
 
             if (spawnerData.coolDown <= 0f) spawnerData = SpawnSquares(ecb, spawnerData);

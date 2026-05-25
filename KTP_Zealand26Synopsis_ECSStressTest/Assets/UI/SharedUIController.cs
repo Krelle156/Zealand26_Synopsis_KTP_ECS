@@ -1,6 +1,8 @@
 using UnityEngine;
 using Unity.Entities;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class SharedUIController : MonoBehaviour
 {
@@ -23,11 +25,19 @@ public class SharedUIController : MonoBehaviour
     private OOPSquareSpawner spawner;
     private OOPPhysicsSquareSpawner physicsSpawner;
     //ECS will be handled by the bridge system.
+    OOPBridgeSystem bridge;
 
     public int ReportedNumOfSquares { get; set; } = -1;
 
+    private bool initialized = false;
+
     public void Awake()
     {
+        //Alright... so mostly by accident I have learned that Start is only once, while Awake is called whenever the scene is changed.
+        //TODO - Because of this I should reconsider where I put the following, but for now "initialized" should be enough.
+
+        if (initialized) return;
+
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = -1;
         if (Instance == null)
@@ -68,8 +78,11 @@ public class SharedUIController : MonoBehaviour
 
 
         SquaresPerSecondSlider = root.Q<SliderInt>("SquaresPerSecondSlider");
+        PopulateReferences();
+        SetSpawnRate(SquaresPerSecondSlider.value);
         SquaresPerSecondFeedback = root.Q<Label>("SquaresPerSecondFeedback");
 
+        initialized = true;
     }
 
     public void Update()
@@ -98,6 +111,7 @@ public class SharedUIController : MonoBehaviour
     //As far as I can tell OnEnable happens before Start.
     public void OnEnable()
     {
+        Debug.Log("Enabling SharedUIController and registering button callbacks.");
         if (Instance != this) return;
 
         ExitBtn.clicked += ExitGame;
@@ -109,7 +123,7 @@ public class SharedUIController : MonoBehaviour
 
         if(SquaresPerSecondSlider != null)
         {
-            SquaresPerSecondSlider.RegisterValueChangedCallback(ChangeSpawnRates);
+            SquaresPerSecondSlider.RegisterValueChangedCallback(OnSpawnRateSliderChange);
         }
     }
 
@@ -124,16 +138,42 @@ public class SharedUIController : MonoBehaviour
         EcsPhysicsSceneBtn.clicked -= LoadECSFake2DPhysicsScene;
         if(SquaresPerSecondSlider != null)
         {
-            SquaresPerSecondSlider.UnregisterValueChangedCallback(ChangeSpawnRates);
+            SquaresPerSecondSlider.UnregisterValueChangedCallback(OnSpawnRateSliderChange);
         }
     }
 
     public void LoadScene(string sceneName)
     {
-        ReportedNumOfSquares = -1;
         ReportedNumOfSquares = 0;
+        if(sceneName == "CleanScene") ReportedNumOfSquares = -1;
+        StartCoroutine(LoadSceneAsync(sceneName));
+    }
+
+    //https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.LoadSceneAsync.html
+    //Took a bit of time for my foggy brain, but thankfully there is unity documentation.
+    //I try to document it here and there in the code, because these are not directly relevant for the assignment, but still indicative of what I have done.
+    //There are however many cases where I have forgotten or otherwise not done so.
+    //Anyways, it is needed only to really ensure that there are handles for the spawners so I can use the slider to set their rates and so I can set the spawn rate "text".
+    public IEnumerator LoadSceneAsync(string sceneName)
+    {
+        AsyncOperation loadingNextScene = SceneManager.LoadSceneAsync(sceneName);
+        while (!loadingNextScene.isDone)
+        {
+            yield return null;
+        }
         Scenario.text = sceneName;
-        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
+        PopulateReferences();
+        SetSpawnRate(SquaresPerSecondSlider.value);
+
+
+    }
+
+    public void PopulateReferences()
+    {
+        spawner = FindFirstObjectByType<OOPSquareSpawner>();
+        if (spawner == null) Debug.Log(">:(");
+        physicsSpawner = FindFirstObjectByType<OOPPhysicsSquareSpawner>();
+        bridge = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<OOPBridgeSystem>();
     }
 
     private void LoadOOP2DScene() => LoadScene("OOP2DScene");
@@ -142,28 +182,38 @@ public class SharedUIController : MonoBehaviour
     private void LoadOOP2DPhysicsScene() => LoadScene("OOP2DPhysicsScene");
     private void LoadECSFake2DPhysicsScene() => LoadScene("ECSFake2DPhysicsScene");
 
-    private void ChangeSpawnRates(ChangeEvent<int> evt)
+    private void OnSpawnRateSliderChange(ChangeEvent<int> evt)
     {
         int newSpawnRate = evt.newValue;
+        SetSpawnRate(newSpawnRate);
+    }
 
-        OOPBridgeSystem bridge = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<OOPBridgeSystem>();
+    private void SetSpawnRate(int newSpawnRate)
+    {
+        
         //https://docs.unity3d.com/Packages/com.unity.entities@6.5/api/Unity.Entities.World.GetExistingSystemManaged.html
         //GetExistingSystemManaged might not be safe (But I think that is for threads only and the null check might be enough.).
         //I could not figure out how else to set values in ECS (at the time of writing and specifically for the purpose of making it happen only in the event.).
+
+
         if (bridge != null)
         {
             bridge.SetSpawnRate(newSpawnRate);
-        } else Debug.LogError("OOPBridgeSystem not found.");
+        }
 
-        if(spawner != null)
+        if (spawner != null)
         {
             spawner.spawnRate = newSpawnRate;
         }
-        if(physicsSpawner != null)
+        if (physicsSpawner != null)
         {
             physicsSpawner.spawnRate = newSpawnRate;
         }
 
+        if (SquaresPerSecondFeedback != null)
+        {
+            SquaresPerSecondFeedback.text = $"{newSpawnRate}";
+        }
     }
     public void ExitGame()
     {
