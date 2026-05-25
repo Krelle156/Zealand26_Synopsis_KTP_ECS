@@ -5,7 +5,7 @@ using UnityEngine;
 
 public struct UniversalSpawnRateComponent : IComponentData
 {
-    public float SpawnRate;
+    public float SpawnRate; //Squares per second
 }
 partial class OOPBridgeSystem : SystemBase
 {
@@ -16,6 +16,7 @@ partial class OOPBridgeSystem : SystemBase
         RequireAnyForUpdate(query1, query2);
 
         EntityManager.AddComponent<UniversalSpawnRateComponent>(SystemHandle);
+        SystemAPI.SetSingleton(new UniversalSpawnRateComponent { SpawnRate = 100 });
     }
 
     protected override void OnUpdate()
@@ -37,5 +38,14 @@ partial class OOPBridgeSystem : SystemBase
     protected override void OnDestroy()
     {
         
+    }
+
+    public void SetSpawnRate(float spawnRate)
+    {
+        if (SystemAPI.TryGetSingleton<UniversalSpawnRateComponent>(out var spawnRateComponent))
+        {
+            spawnRateComponent.SpawnRate = spawnRate;
+            SystemAPI.SetSingleton(spawnRateComponent);
+        } else Debug.LogError("UniversalSpawnRateComponent singleton not found.");
     }
 }

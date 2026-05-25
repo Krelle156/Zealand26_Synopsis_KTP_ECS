@@ -18,6 +18,7 @@ public class SharedUIController : MonoBehaviour
     private Label Scenario;
 
     private SliderInt SquaresPerSecondSlider;
+    private Label SquaresPerSecondFeedback;
 
     private OOPSquareSpawner spawner;
     private OOPPhysicsSquareSpawner physicsSpawner;
@@ -53,16 +54,21 @@ public class SharedUIController : MonoBehaviour
             }
         }
 
-        ECSSceneBtn = uiDocument.rootVisualElement.Q<Button>("ECS_MovingSquares");
-        OOPSceneBtn = uiDocument.rootVisualElement.Q<Button>("OOP_MovingSquares");
-        CustomECSBtn = uiDocument.rootVisualElement.Q<Button>("ECS_Custom");
-        OOPPhysicsSceneBtn = uiDocument.rootVisualElement.Q<Button>("OOP_2D_Physics");
-        EcsPhysicsSceneBtn = uiDocument.rootVisualElement.Q<Button>("ECS_Constrained3D_Physics");
-        ExitBtn = uiDocument.rootVisualElement.Q<Button>("ExitBtn");
-        FPSCounter = uiDocument.rootVisualElement.Q<Label>("FPS_Counter");
-        SquareCounter = uiDocument.rootVisualElement.Q<Label>("Square_Counter");
-        Scenario = uiDocument.rootVisualElement.Q<Label>("Scenario");
-        SquaresPerSecondSlider = uiDocument.rootVisualElement.Q<SliderInt>("SquaresPerSecondSlider");
+        VisualElement root = uiDocument.rootVisualElement;
+
+        ECSSceneBtn = root.Q<Button>("ECS_MovingSquares");
+        OOPSceneBtn = root.Q<Button>("OOP_MovingSquares");
+        CustomECSBtn = root.Q<Button>("ECS_Custom");
+        OOPPhysicsSceneBtn = root.Q<Button>("OOP_2D_Physics");
+        EcsPhysicsSceneBtn = root.Q<Button>("ECS_Constrained3D_Physics");
+        ExitBtn = root.Q<Button>("ExitBtn");
+        FPSCounter = root.Q<Label>("FPS_Counter");
+        SquareCounter = root.Q<Label>("Square_Counter");
+        Scenario = root.Q<Label>("Scenario");
+
+
+        SquaresPerSecondSlider = root.Q<SliderInt>("SquaresPerSecondSlider");
+        SquaresPerSecondFeedback = root.Q<Label>("SquaresPerSecondFeedback");
 
     }
 
@@ -140,6 +146,23 @@ public class SharedUIController : MonoBehaviour
     {
         int newSpawnRate = evt.newValue;
 
+        OOPBridgeSystem bridge = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<OOPBridgeSystem>();
+        //https://docs.unity3d.com/Packages/com.unity.entities@6.5/api/Unity.Entities.World.GetExistingSystemManaged.html
+        //GetExistingSystemManaged might not be safe (But I think that is for threads only and the null check might be enough.).
+        //I could not figure out how else to set values in ECS (at the time of writing and specifically for the purpose of making it happen only in the event.).
+        if (bridge != null)
+        {
+            bridge.SetSpawnRate(newSpawnRate);
+        } else Debug.LogError("OOPBridgeSystem not found.");
+
+        if(spawner != null)
+        {
+            spawner.spawnRate = newSpawnRate;
+        }
+        if(physicsSpawner != null)
+        {
+            physicsSpawner.spawnRate = newSpawnRate;
+        }
 
     }
     public void ExitGame()
