@@ -9,7 +9,6 @@ public partial struct SquareMoverSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
         foreach (var (move, transform) in SystemAPI.Query<RefRW<SimpleMoveComponent>, RefRW<LocalTransform>>())
         {
             float speed = move.ValueRW.speed;
