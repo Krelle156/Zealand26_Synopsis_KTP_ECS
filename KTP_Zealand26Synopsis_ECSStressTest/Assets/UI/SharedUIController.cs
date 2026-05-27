@@ -12,10 +12,6 @@ public class SharedUIController : MonoBehaviour
     [SerializeField] private float timeBetweenFPSUpdates = 0.1f;
     private float fpsCoolDown = 0f;
 
-    private float prevFPS = -1f;
-    private float fpsDeltaTotal = 0f;
-    private float seconds = 0;
-
     [SerializeField]
     private UIDocument uiDocument;
     private Button OOPSceneBtn, ECSSceneBtn, OOPPhysicsSceneBtn, EcsPhysicsSceneBtn, CustomECSBtn, ExitBtn;
@@ -23,13 +19,13 @@ public class SharedUIController : MonoBehaviour
 
     private Label FPSCounter;
     private Label SquareCounter;
-    private Label FPSDeltaAvg;
 
     private SliderInt SquaresPerSecondSlider;
     private Label SquaresPerSecondFeedback;
 
     private OOPSquareSpawner spawner;
     private OOPPhysicsSquareSpawner physicsSpawner;
+    private FakeEcsSpawner fakeEcsSpawner;
     //ECS will be handled by the bridge system.
     OOPBridgeSystem bridge;
 
@@ -83,7 +79,6 @@ public class SharedUIController : MonoBehaviour
 
         FPSCounter = root.Q<Label>("FPS_Counter");
         SquareCounter = root.Q<Label>("Square_Counter");
-        FPSDeltaAvg = root.Q<Label>("FPS_DeltaAvg");
 
 
         SquaresPerSecondSlider = root.Q<SliderInt>("SquaresPerSecondSlider");
@@ -91,19 +86,12 @@ public class SharedUIController : MonoBehaviour
         PopulateReferences();
         SetSpawnRate(SquaresPerSecondSlider.value);
 
+
         initialized = true;
     }
 
     public void Update()
     {
-        if (prevFPS > 0)
-        {
-            fpsDeltaTotal += (1f / Time.unscaledDeltaTime) - prevFPS;
-            seconds += Time.unscaledDeltaTime;
-            FPSDeltaAvg.text = $"ΔFPS Avg: {(fpsDeltaTotal / seconds):0.00}  seconds:{seconds:0.}";
-        }
-        prevFPS = 1f / Time.unscaledDeltaTime;
-
         fpsBuffer[fpsBufferIndex] = 1f / Time.unscaledDeltaTime;
         fpsBufferIndex = (fpsBufferIndex + 1) % fpsBuffer.Length;
 
@@ -188,6 +176,7 @@ public class SharedUIController : MonoBehaviour
     {
         spawner = FindFirstObjectByType<OOPSquareSpawner>();
         physicsSpawner = FindFirstObjectByType<OOPPhysicsSquareSpawner>();
+        fakeEcsSpawner = FindFirstObjectByType<FakeEcsSpawner>();
         bridge = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<OOPBridgeSystem>();
     }
 
@@ -222,6 +211,10 @@ public class SharedUIController : MonoBehaviour
         if (physicsSpawner != null)
         {
             physicsSpawner.spawnRate = newSpawnRate;
+        }
+        if (fakeEcsSpawner != null)
+        {
+            fakeEcsSpawner.spawnRate = newSpawnRate;
         }
 
         if (SquaresPerSecondFeedback != null)

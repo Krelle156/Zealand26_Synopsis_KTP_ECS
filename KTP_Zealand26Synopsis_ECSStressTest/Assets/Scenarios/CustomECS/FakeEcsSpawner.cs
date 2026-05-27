@@ -5,10 +5,10 @@ public class FakeEcsSpawner : MonoBehaviour
     public FakeEcsManager manager;
 
     public SquareFakeEcsComponent squarePrefab;
-    public float SpawnRate = 1f;
+    public float spawnRate = 1f;
     private float coolDown;
 
-    private static int ReportedNumOfSquares = 0;
+    private int ReportedNumOfSquares = 0;
 
     private void Update()
     {
@@ -16,7 +16,6 @@ public class FakeEcsSpawner : MonoBehaviour
         if (coolDown <= 0f)
         {
             SpawnSquare();
-            coolDown += 1f / SpawnRate;
 
             SharedUIController instance = SharedUIController.Instance;
             if(instance != null)
@@ -34,8 +33,8 @@ public class FakeEcsSpawner : MonoBehaviour
         manager.squares.Add(newSquare);
 
         ReportedNumOfSquares++;
-        coolDown += 1f / SpawnRate;
-        if(coolDown < 0f)
+        coolDown += 1f / spawnRate;
+        if(coolDown <= 0f)
         {
             SpawnSquare();
         }
