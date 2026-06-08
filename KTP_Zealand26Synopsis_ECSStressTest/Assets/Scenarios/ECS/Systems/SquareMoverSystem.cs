@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Burst;
+
 [BurstCompile]
 public partial struct SquareMoverSystem : ISystem
 {

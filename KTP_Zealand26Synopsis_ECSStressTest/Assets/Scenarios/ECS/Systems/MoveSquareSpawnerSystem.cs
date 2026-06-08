@@ -1,10 +1,11 @@
-using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
+using Unity.Burst;
 
+[BurstCompile]
 public partial struct MoveSquareSpawnerSystem : ISystem
 {
     //https://www.youtube.com/watch?v=s-nr9EMmhfo A mildly outdated video. It demonstrates how to use random in ECS. The main difference appears to be that entites and components are not created the same way.
