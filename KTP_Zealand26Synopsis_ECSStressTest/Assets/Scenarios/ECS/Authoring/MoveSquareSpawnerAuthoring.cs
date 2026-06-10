@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 class MoveSquareSpawnerAuthoring : MonoBehaviour
@@ -12,12 +13,14 @@ class MoveSquareSpawnerAuthoringBaker : Baker<MoveSquareSpawnerAuthoring>
     public override void Bake(MoveSquareSpawnerAuthoring authoring)
     {
         Entity entity = GetEntity(TransformUsageFlags.None);
+        Entity prefabEntity = GetEntity(authoring.prefab, TransformUsageFlags.Dynamic);
         AddComponent(entity, new MoveSquareSpawnerComponent
         {
-            prefab = GetEntity(authoring.prefab, TransformUsageFlags.None),
+            prefab = prefabEntity,
             spawnPosition = authoring.transform.position,
             spawnRate = authoring.spawnRate,
-            coolDown = 0f
+            coolDown = 0f,
+            numOfSquaresSpawned = 0
         });
     }
 }

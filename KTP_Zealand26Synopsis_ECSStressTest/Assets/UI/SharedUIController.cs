@@ -14,6 +14,8 @@ public class SharedUIController : MonoBehaviour
 
     [SerializeField]
     private UIDocument uiDocument;
+    private Button ToggleJobsBtn;
+
     private Button OOPSceneBtn, ECSSceneBtn, OOPPhysicsSceneBtn, EcsPhysicsSceneBtn, CustomECSBtn, ExitBtn;
     private Label Scenario;
 
@@ -28,6 +30,9 @@ public class SharedUIController : MonoBehaviour
     private FakeEcsSpawner fakeEcsSpawner;
     //ECS will be handled by the bridge system.
     OOPBridgeSystem bridge;
+
+    public string JobIndicatorLabel = "";
+    public bool JobsEnabled = false;
 
     public int ReportedNumOfSquares { get; set; } = -1;
 
@@ -74,6 +79,19 @@ public class SharedUIController : MonoBehaviour
         OOPPhysicsSceneBtn = root.Q<Button>("OOP_2D_Physics");
         EcsPhysicsSceneBtn = root.Q<Button>("ECS_Constrained3D_Physics");
         ExitBtn = root.Q<Button>("ExitBtn");
+
+        ToggleJobsBtn = root.Q<Button>("JobsToggle");
+        if(ToggleJobsBtn != null)
+        {
+            if(JobsEnabled)
+            {
+                ToggleJobsBtn.style.backgroundColor = Color.green;
+            } else
+            {
+                ToggleJobsBtn.style.backgroundColor = Color.red;
+            }
+        }
+            
 
         Scenario = root.Q<Label>("Scenario");
 
@@ -123,8 +141,9 @@ public class SharedUIController : MonoBehaviour
         CustomECSBtn.clicked += LoadECSCustomScene;
         OOPPhysicsSceneBtn.clicked += LoadOOP2DPhysicsScene;
         EcsPhysicsSceneBtn.clicked += LoadECSFake2DPhysicsScene;
+        ToggleJobsBtn.clicked += ToggleJobSystem;
 
-        if(SquaresPerSecondSlider != null)
+        if (SquaresPerSecondSlider != null)
         {
             SquaresPerSecondSlider.RegisterValueChangedCallback(OnSpawnRateSliderChange);
         }
@@ -133,12 +152,15 @@ public class SharedUIController : MonoBehaviour
     public void OnDisable()
     {
         if (Instance != this) return;
+
         ExitBtn.clicked -= ExitGame;
         OOPSceneBtn.clicked -= LoadOOP2DScene;
         ECSSceneBtn.clicked -= LoadECS2DScene;
         CustomECSBtn.clicked -= LoadECSCustomScene;
         OOPPhysicsSceneBtn.clicked -= LoadOOP2DPhysicsScene;
         EcsPhysicsSceneBtn.clicked -= LoadECSFake2DPhysicsScene;
+        ToggleJobsBtn.clicked -= ToggleJobSystem;
+
         if(SquaresPerSecondSlider != null)
         {
             SquaresPerSecondSlider.UnregisterValueChangedCallback(OnSpawnRateSliderChange);
@@ -181,7 +203,7 @@ public class SharedUIController : MonoBehaviour
     }
 
     private void LoadOOP2DScene() => LoadScene("OOP2DScene", "Spawning traditional game objects");
-    private void LoadECS2DScene() => LoadScene("ECS2DScene", "Spawning ECS game objects");
+    private void LoadECS2DScene() => LoadScene("ECS2DScene", $"Spawning ECS game objects {JobIndicatorLabel}");
     private void LoadECSCustomScene() => LoadScene("CustomECS", "Spawning custom \"ECS\" game objects");
     private void LoadOOP2DPhysicsScene() => LoadScene("OOP2DPhysicsScene", "Spawning traditional game objects with physics");
     private void LoadECSFake2DPhysicsScene() => LoadScene("ECSFake2DPhysicsScene", "Spawning ECS game objects with fake physics");
@@ -189,6 +211,39 @@ public class SharedUIController : MonoBehaviour
     {
         int newSpawnRate = evt.newValue;
         SetSpawnRate(newSpawnRate);
+    }
+
+    private void ToggleJobSystem()
+    {
+        World ecsWorld = World.DefaultGameObjectInjectionWorld;
+
+        SystemHandle StandardMoverSystem_Handle = ecsWorld.GetExistingSystem<SquareMoverSystem>();
+        SystemHandle JobMoverSystem_Handle = ecsWorld.GetExistingSystem<JobSquareMoverSystem>();
+
+        //I turns out if you try to do the below it does not "resolve".*
+        /*
+        SystemState standardMoverSystem_State = ecsWorld.Unmanaged.ResolveSystemStateRef(StandardMoverSystem_Handle);
+        SystemState jobMoverSystem_State = ecsWorld.Unmanaged.ResolveSystemStateRef(JobMoverSystem_Handle);
+        */
+
+        JobsEnabled = !JobsEnabled;
+
+        //*I must say it is quite alien to me, that I cannot just "reference" an object outside of this "instant", but the more you know.
+        ecsWorld.Unmanaged.ResolveSystemStateRef(StandardMoverSystem_Handle).Enabled = !JobsEnabled;
+        ecsWorld.Unmanaged.ResolveSystemStateRef(JobMoverSystem_Handle).Enabled = JobsEnabled;
+
+        if(JobsEnabled)
+        {
+            JobIndicatorLabel = "(Jobs)";
+            ToggleJobsBtn.style.backgroundColor = Color.green;
+        }
+        else
+        {
+            JobIndicatorLabel = "";
+            ToggleJobsBtn.style.backgroundColor = Color.red;
+        }
+
+        ECSSceneBtn.text = $"ECS 2D {JobIndicatorLabel}";
     }
 
     private void SetSpawnRate(int newSpawnRate)

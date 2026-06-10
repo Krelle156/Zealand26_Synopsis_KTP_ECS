@@ -16,7 +16,7 @@ public partial struct SquareMoverSystem : ISystem
             float deltaTime = SystemAPI.Time.DeltaTime;
             if (speed > 0)
             {
-                transform.ValueRW.Position += new Unity.Mathematics.float3(move.ValueRW.moveDirection * speed, 0) * deltaTime;
+                transform.ValueRW.Position += new float3(move.ValueRW.moveDirection * speed, 0) * deltaTime;
             }
             move.ValueRW.speed = speed;
         }
