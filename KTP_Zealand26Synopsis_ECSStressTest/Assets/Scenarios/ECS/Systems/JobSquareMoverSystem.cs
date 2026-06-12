@@ -8,6 +8,7 @@ using Unity.Collections;
 [BurstCompile]
 public partial struct JobSquareMoverSystem : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<SimpleMoveComponent>();
