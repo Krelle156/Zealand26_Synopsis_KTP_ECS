@@ -10,10 +10,6 @@ public partial struct MoveSystem : ISystem
 
         foreach (var (moveComponent, transform) in SystemAPI.Query<RefRW<MoveComponent>, RefRW<LocalTransform>>())
         {
-
-
-
-
             transform.ValueRW.Position += moveComponent.ValueRO.currentSpeed * deltaTime;
         }
     }

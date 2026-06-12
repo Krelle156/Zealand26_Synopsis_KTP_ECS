@@ -18,11 +18,6 @@ public class MoveComponentBaker : Baker<MoveComponentAuthoring>
                 currentSpeed = author.currentSpeed
             });
         AddComponent(entity,
-            new OmniDirectionalMovement
-            {
-                Value = new float2(0, 0)
-            });
-        AddComponent(entity,
             new ThePlayerTag()
             );
         AddComponent(entity,

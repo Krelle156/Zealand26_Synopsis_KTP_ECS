@@ -8,12 +8,14 @@ public partial struct ThrusterSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         float deltaTime = SystemAPI.Time.DeltaTime;
-        foreach (var (moveComponent, thrustIntentComponent, transform) in SystemAPI.Query<RefRW<MoveComponent>, RefRO<ThrustIntentComponent>, RefRO<LocalTransform>>())
+        foreach (var (moveComponent, rotationComponent, thrustIntentComponent, rotationIntentComponent, transform) in SystemAPI.Query<RefRW<MoveComponent>, RefRW<RotationComponent>, RefRO<ThrustIntentComponent>, RefRO<RotationIntentComponent>, RefRO<LocalTransform>>())
         {
             var tempMoveRO = moveComponent.ValueRO;
             moveComponent.ValueRW.currentSpeed += thrustIntentComponent.ValueRO.Thrust * transform.ValueRO.Up() * deltaTime;
             moveComponent.ValueRW.currentSpeed += thrustIntentComponent.ValueRO.ThrustLateral * transform.ValueRO.Right() * deltaTime;
-            moveComponent.ValueRW.currentSpeed -= 0.1f * tempMoveRO.currentSpeed * deltaTime;  
+            moveComponent.ValueRW.currentSpeed -= 0.1f * tempMoveRO.currentSpeed * deltaTime;
+            
+            rotationComponent.ValueRW.rotationSpeed += rotationIntentComponent.ValueRO.Rotation * deltaTime;
         }
     }
 }

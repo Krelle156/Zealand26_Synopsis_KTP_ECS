@@ -48,7 +48,7 @@ public partial class GetPlayerInputSystem : SystemBase
 
         _thrustComponent.Thrust = _inputs.PlayerShip.MainThrust.ReadValue<float>();
         _thrustComponent.ThrustLateral = _inputs.PlayerShip.LateralThrust.ReadValue<float>();
-        _rotationComponent.Rotation = _inputs.PlayerShip.Turn.ReadValue<float>();
+        _rotationComponent.Rotation = -_inputs.PlayerShip.Turn.ReadValue<float>();
 
         SystemAPI.SetSingleton(_thrustComponent);
         SystemAPI.SetSingleton(_rotationComponent);

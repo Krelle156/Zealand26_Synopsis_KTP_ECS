@@ -18,6 +18,11 @@ public class CollisionTestBaker : Baker<CollisionTestAuthoring>
             {
                 currentSpeed = author.currentSpeed
             });
+        AddComponent(entity,
+            new RotationComponent
+            {
+                rotationSpeed = 0
+            });
         if (author.isPlayer)
         {
             AddComponent(entity,

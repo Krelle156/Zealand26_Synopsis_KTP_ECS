@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MyMath
 {
-    //This class exist solely because I do not know all built in math methods and I believe without proof that there are a few formulas missing.
+    //This class exist solely because I do not know all built-in math methods and I believe without proof that there are a few formulas missing.
     public class Math
     {
         public static float2 GetNormal(float2 a, float2 b)
