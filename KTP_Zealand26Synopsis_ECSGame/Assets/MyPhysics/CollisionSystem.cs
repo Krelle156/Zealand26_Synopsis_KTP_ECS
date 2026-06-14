@@ -17,22 +17,28 @@ public partial struct CollisionSystem : ISystem
             {
                 if (entityA.Index < entityB.Index)
                 {
-                    ref var pointsA = ref colliderA.BlobArray.Value.Points;
-                    ref var pointsB = ref colliderB.BlobArray.Value.Points;
+                    ref var shapesA = ref colliderA.BlobArray.Value.Shapes;
+                    ref var shapesB = ref colliderB.BlobArray.Value.Shapes;
 
+                    for(int i = 0; i < shapesA.Length; i++)
+                    {
+                        for (int j = 0; j < shapesB.Length; j++)
+                        {
+                             if (CheckCollision(colliderA, transformA, colliderB, transformB, i, j))
+                                Debug.Log($"Collision between {entityA} and {entityB}");
+                        }
+                    }
 
-                    if (CheckCollision(colliderA, transformA, colliderB, transformB))
-                        Debug.Log($"Collision between {entityA} and {entityB}");
                 }
             }
         }
     }
 
     [BurstCompile]
-    private bool CheckCollision(MyPolygonColliderComponent colliderA, LocalTransform transformA, MyPolygonColliderComponent colliderB, LocalTransform transformB)
+    private bool CheckCollision(MyPolygonColliderComponent colliderA, LocalTransform transformA, MyPolygonColliderComponent colliderB, LocalTransform transformB, int shapeAIndex, int shapeBIndex)
     {
-        ref var pointsA = ref colliderA.BlobArray.Value.Points;
-        ref var pointsB = ref colliderB.BlobArray.Value.Points;
+        ref var pointsA = ref colliderA.BlobArray.Value.Shapes[shapeAIndex].Points;
+        ref var pointsB = ref colliderB.BlobArray.Value.Shapes[shapeBIndex].Points;
         FixedList512Bytes<float2> axes = new FixedList512Bytes<float2>();
         FixedList4096Bytes<float2> worldPointsA = new FixedList4096Bytes<float2>();
         FixedList4096Bytes<float2> worldPointsB = new FixedList4096Bytes<float2>();

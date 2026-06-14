@@ -16,36 +16,53 @@ public struct PolygonPointBlobArray
     public BlobArray<float2> Points;
 }
 
-public class MyPolygonColliderAuthoring : MonoBehaviour
+public struct PolygonShapeArray
+{
+    public BlobArray<PolygonPointBlobArray> Shapes;
+}
+
+[System.Serializable]
+public struct simpleShape
 {
     public float2[] points;
+}
+
+public class MyPolygonColliderAuthoring : MonoBehaviour
+{
+    public simpleShape[] shapes;
 }
 
 public class MyPolygonBaker : Baker<MyPolygonColliderAuthoring>
 {
     public override void Bake(MyPolygonColliderAuthoring authoring)
     {
-        if (authoring.points == null || authoring.points.Length < 3)
+        if (authoring.shapes == null || authoring.shapes[0].points.Length < 3)
         {
-            authoring.points = new float2[3];
-            authoring.points[0] = new float2(0, 0.5f);
-            authoring.points[1] = new float2(-0.5f, -0.5f);
-            authoring.points[2] = new float2(0.5f, -0.5f);
+            authoring.shapes = new simpleShape[1];
+            authoring.shapes[0] = new simpleShape { points = new float2[3] };
+            authoring.shapes[0].points[0] = new float2(0, 0.5f);
+            authoring.shapes[0].points[1] = new float2(-0.5f, -0.5f);
+            authoring.shapes[0].points[2] = new float2(0.5f, -0.5f);
         }
         Entity entity = GetEntity(TransformUsageFlags.Dynamic);
 
         BlobBuilder builder = new BlobBuilder(Allocator.Temp);
 
-        ref PolygonPointBlobArray polygonPointArray = ref builder.ConstructRoot<PolygonPointBlobArray>();
-        BlobBuilderArray<float2> pointsArray = builder.Allocate(ref polygonPointArray.Points, authoring.points.Length);
+        ref PolygonShapeArray polygonShapeArray = ref builder.ConstructRoot<PolygonShapeArray>();
+        BlobBuilderArray<PolygonPointBlobArray> subShapeArrayBuilder = builder.Allocate(ref polygonShapeArray.Shapes, authoring.shapes.Length);
 
 
-        for (int i = 0; i < authoring.points.Length; i++)
+        for(int i = 0; i < authoring.shapes.Length; i++)
         {
-            pointsArray[i] =  authoring.points[i];
+            BlobBuilderArray<float2> pointsArray = builder.Allocate(ref subShapeArrayBuilder[i].Points, authoring.shapes[i].points.Length);
+
+            for (int j = 0; j < authoring.shapes[i].points.Length; j++)
+            {
+                pointsArray[j] =  authoring.shapes[i].points[j];
+            }
         }
 
-        BlobAssetReference<PolygonPointBlobArray> blobAssetReference = builder.CreateBlobAssetReference<PolygonPointBlobArray>(Allocator.Persistent);
+        BlobAssetReference<PolygonShapeArray> blobAssetReference = builder.CreateBlobAssetReference<PolygonShapeArray>(Allocator.Persistent);
         builder.Dispose();
 
         AddBlobAsset(ref blobAssetReference, out var hash);

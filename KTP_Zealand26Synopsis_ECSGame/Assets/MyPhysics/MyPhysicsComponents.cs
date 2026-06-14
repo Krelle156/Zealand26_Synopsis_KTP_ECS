@@ -9,7 +9,7 @@ public struct MyCircleColliderComponent : IComponentData
 
 public struct MyPolygonColliderComponent : IComponentData
 {
-    public BlobAssetReference<PolygonPointBlobArray> BlobArray;
+    public BlobAssetReference<PolygonShapeArray> BlobArray;
 }
 
 public struct MyVelocityComponent : IComponentData

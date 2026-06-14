@@ -10,6 +10,5 @@ public struct MoveComponent : IComponentData
 
 public struct  RotationComponent : IComponentData
 {
-    public float currentRotation2D;
     public float rotationSpeed;
 }

@@ -15,19 +15,13 @@ partial struct RotationSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach(var (rotationComponent, transform) in SystemAPI.Query<RefRW<RotationComponent>, RefRW<LocalTransform>>())
+        float deltaTime = SystemAPI.Time.DeltaTime;
+        foreach (var (rotationComponent, transform) in SystemAPI.Query<RefRW<RotationComponent>, RefRW<LocalTransform>>())
         {
             var rotationcomponentTemp = rotationComponent.ValueRW;
-            rotationcomponentTemp.currentRotation2D += rotationcomponentTemp.rotationSpeed * SystemAPI.Time.DeltaTime;
-            if(rotationcomponentTemp.currentRotation2D > math.PI * 2)
-            {
-                rotationcomponentTemp.currentRotation2D -= math.PI * 2;
-            } else if(rotationcomponentTemp.currentRotation2D < 0)
-            {
-                rotationcomponentTemp.currentRotation2D += math.PI * 2;
-            }
-
-            transform.ValueRW.Rotation = quaternion.AxisAngle(zAxis, rotationcomponentTemp.currentRotation2D);
+            var transformTemp = transform.ValueRW;
+            
+            transform.ValueRW.Rotation = math.mul(transformTemp.Rotation, quaternion.RotateZ(rotationcomponentTemp.rotationSpeed * deltaTime));
             rotationComponent.ValueRW = rotationcomponentTemp;
         }
     }
